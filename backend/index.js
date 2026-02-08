@@ -1,41 +1,27 @@
+import "./configs/env.js";
+
 import express from "express";
+import connectDB from "./configs/db.js";
+import fileRoutes from "./routes/file.routes.js";
+import uploadRoutes from "./routes/upload.routes.js";
 import normaliseAudio from "./middlewares/normalise.js";
-import multer from "multer";
-import path from "path";
 
 const PORT = process.env.PORT || 8000;
 
 const app = express();
 
-const upload = multer({
-    dest: "/uploads/raw"
-})
+app.use(express.json());
+app.use("/file", fileRoutes);
+app.use("/upload", uploadRoutes);
 
-app.post("/test-audio", upload.single("audio"), async (req, res) => {
-  try {
-    const inputPath = req.file.path;
-    const outputPath = path.join(
-      "uploads/normalized",
-      `${Date.now()}_16khz.wav`
-    );
-
-    await normaliseAudio(inputPath, outputPath);
-
-    res.json({
-      message: "Audio normalized successfully",
-      input: inputPath,
-      output: outputPath
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Audio normalization failed" });
-  }
-});
+connectDB();
 
 app.get("/", (req, res) => {
     res.send("hello pookie...get command lmao");
 })
 
+app.post("/test-audio", normaliseAudio);
+
 app.listen(PORT, () => {
-    console.log("Hello from the server pookie");
+    console.log("Hello from the server pookie", PORT);
 })
