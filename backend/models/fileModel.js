@@ -1,36 +1,34 @@
 import mongoose from "mongoose";
 
-const fileSchema = new mongoose.Schema({
-    user: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User"
-    },
-
+const fileSchema = new mongoose.Schema(
+  { 
     type: {
-        type: String,
-        enum: ["audio", "document", "image"]
-    },
-
-    original: {
-        url: String,
-        public_id: String
-    },
-
-    normalized: {
-        url: String,
-        public_id: String
+      type: String,
+      enum: ["audio"],
+      required: true
     },
 
     status: {
-        type: String,
-        enum: ["uploaded", "processing", "completed", "failed"],
-        default: "uploaded"
+      type: String,
+      enum: ["uploaded", "normalizing", "normalized", "failed"],
+      default: "uploaded"
     },
 
-    createdAt: {
-        type: Date,
-        default: Date.now
+    original: {
+      url: String,
+      public_id: String
+    },
+
+    normalized: {
+      url: String,
+      public_id: String
+    },
+
+    error: {
+      type: String
     }
-});
+  },
+  { timestamps: true }
+);
 
 export default mongoose.model("File", fileSchema);

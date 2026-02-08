@@ -3,25 +3,22 @@ import "./configs/env.js";
 import express from "express";
 import connectDB from "./configs/db.js";
 import fileRoutes from "./routes/file.routes.js";
-import uploadRoutes from "./routes/upload.routes.js";
-import normaliseAudio from "./middlewares/normalise.js";
-
-const PORT = process.env.PORT || 8000;
+import cors from "cors";
 
 const app = express();
-
 app.use(express.json());
+app.use(cors({
+    origin: "http://localhost:5173",
+}))
+
 app.use("/file", fileRoutes);
-app.use("/upload", uploadRoutes);
 
 connectDB();
 
-app.get("/", (req, res) => {
-    res.send("hello pookie...get command lmao");
-})
+app.get("/", (_, res) => {
+  res.send("EchoFin backend running");
+});
 
-app.post("/test-audio", normaliseAudio);
-
-app.listen(PORT, () => {
-    console.log("Hello from the server pookie", PORT);
-})
+app.listen(8000, () => {
+  console.log("Server running on port 8000");
+});
