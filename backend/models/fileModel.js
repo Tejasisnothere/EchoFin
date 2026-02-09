@@ -10,7 +10,7 @@ const fileSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["uploaded", "normalizing", "normalized", "failed"],
+      enum: ["uploaded", "normalizing", "normalized", "failed", "queued"],
       default: "uploaded"
     },
 

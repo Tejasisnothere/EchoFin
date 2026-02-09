@@ -1,5 +1,6 @@
 import File from "../models/fileModel.js";
 import { processAudio } from "../workers/audio.worker.js";
+import { enqueueUploadJob } from "../queues/upload.queue.js";
 
 export const registerFile = async (req, res) => {
   try {
@@ -9,25 +10,25 @@ export const registerFile = async (req, res) => {
       return res.status(400).json({ message: "Missing file data" });
     }
 
-    // 1️⃣ Create DB record
-    const file = await File.create({
-      type: "audio",
-      status: "uploaded",
-      original: {
-        url: secure_url,
-        public_id
-      }
+    // respond immediately
+    res.status(202).json({
+      message: "Upload accepted"
     });
 
-    // 2️⃣ Respond immediately (IMPORTANT)
-    res.status(201).json({
-      file_id: file._id,
-      status: file.status
-    });
+    // queue ONLY the DB write
+    enqueueUploadJob(async () => {
+      console.log("📥 Registering file:", public_id);
 
-    // 3️⃣ Auto-trigger normalization AFTER response
-    setImmediate(() => {
-      processAudio(file._id, secure_url);
+      await File.create({
+        type: "audio",
+        status: "uploaded",
+        original: {
+          url: secure_url,
+          public_id
+        }
+      });
+
+      console.log("✅ File registered:", public_id);
     });
 
   } catch (err) {
@@ -50,7 +51,7 @@ export const normalizeFile = async (req, res) => {
       });
     }
 
-    // Fire async worker
+    
     processAudio(file._id, file.original.url);
 
     res.json({
