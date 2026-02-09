@@ -39,7 +39,11 @@ export const registerFile = async (req, res) => {
           audioUrl: secure_url
         },
         {
-          jobId: file._id.toString() // idempotent
+          jobId: file._id.toString(), // idempotent
+          attempts: 1,            // ❌ no retries
+          removeOnComplete: true, // 🧹 cleanup
+          removeOnFail: true,     // 🧹 cleanup
+          backoff: false 
         }
       );
 

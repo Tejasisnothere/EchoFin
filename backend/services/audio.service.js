@@ -8,21 +8,19 @@ import path from "path";
 ffmpeg.setFfmpegPath(ffmpegPath);
 
 export const normalizeFromUrl = async (audioUrl) => {
-  console.log("⬇Downloading original audio...");
+  console.log("⬇ Downloading original audio…");
 
-  const response = await axios.get(audioUrl, {
+  const res = await axios.get(audioUrl, {
     responseType: "arraybuffer",
-    timeout: 300000,
-    maxContentLength: Infinity,
-    maxBodyLength: Infinity
+    timeout: 300000
   });
 
-  const inputPath = path.join(os.tmpdir(), `input-${Date.now()}.mp3`);
+  const inputPath = path.join(os.tmpdir(), `input-${Date.now()}`);
   const outputPath = path.join(os.tmpdir(), `output-${Date.now()}.wav`);
 
-  fs.writeFileSync(inputPath, Buffer.from(response.data));
+  fs.writeFileSync(inputPath, Buffer.from(res.data));
 
-  console.log("Running FFmpeg...");
+  console.log("🎚 Normalizing → WAV");
 
   await new Promise((resolve, reject) => {
     ffmpeg(inputPath)
@@ -35,10 +33,10 @@ export const normalizeFromUrl = async (audioUrl) => {
       .save(outputPath);
   });
 
-  const normalizedBuffer = fs.readFileSync(outputPath);
+  const buffer = fs.readFileSync(outputPath);
 
   fs.unlinkSync(inputPath);
   fs.unlinkSync(outputPath);
 
-  return normalizedBuffer;
+  return buffer;
 };

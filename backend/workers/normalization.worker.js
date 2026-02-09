@@ -20,7 +20,10 @@ async function startWorker() {
     {
       connection: redis,
       concurrency: 1,
-      lockDuration: 10 * 60 * 1000
+      settings: {
+        stalledInterval: 0,
+        lockDuration: 600000
+      }
     }
   );
 }
