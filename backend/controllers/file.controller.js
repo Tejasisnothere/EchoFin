@@ -1,6 +1,7 @@
 import File from "../models/fileModel.js";
 import { processAudio } from "../workers/audio.worker.js";
 import { enqueueUploadJob } from "../queues/upload.queue.js";
+import { normalizationQueue } from "../queues/normalization.queue.js";
 
 export const registerFile = async (req, res) => {
   try {
@@ -15,11 +16,11 @@ export const registerFile = async (req, res) => {
       message: "Upload accepted"
     });
 
-    // queue ONLY the DB write
+    // queue DB write
     enqueueUploadJob(async () => {
-      console.log("📥 Registering file:", public_id);
+      console.log("Registering file:", public_id);
 
-      await File.create({
+      const file = await File.create({
         type: "audio",
         status: "uploaded",
         original: {
@@ -28,7 +29,26 @@ export const registerFile = async (req, res) => {
         }
       });
 
-      console.log("✅ File registered:", public_id);
+      console.log("File registered:", file._id);
+
+      // DIRECTLY enqueue normalization job into Redis
+      await normalizationQueue.add(
+        "normalize",
+        {
+          fileId: file._id.toString(),
+          audioUrl: secure_url
+        },
+        {
+          jobId: file._id.toString() // idempotent
+        }
+      );
+
+      // update status to reflect queueing
+      await File.findByIdAndUpdate(file._id, {
+        status: "queued"
+      });
+
+      console.log("🚀 Normalization job enqueued:", file._id);
     });
 
   } catch (err) {
