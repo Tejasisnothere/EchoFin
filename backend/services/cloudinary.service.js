@@ -11,10 +11,10 @@ export const uploadBuffer = async (buffer, folder) => {
       },
       (error, result) => {
         if (error) {
-          console.error("❌ Cloudinary upload error:", error);
+          console.error("Cloudinary upload error:", error);
           reject(error);
         } else {
-          console.log("☁️ Cloudinary upload success:", result.public_id);
+          console.log("Cloudinary upload success:", result.public_id);
           resolve(result);
         }
       }

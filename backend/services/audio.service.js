@@ -8,7 +8,7 @@ import path from "path";
 ffmpeg.setFfmpegPath(ffmpegPath);
 
 export const normalizeFromUrl = async (audioUrl) => {
-  console.log("⬇️ Downloading original audio...");
+  console.log("⬇Downloading original audio...");
 
   const response = await axios.get(audioUrl, {
     responseType: "arraybuffer",
@@ -22,7 +22,7 @@ export const normalizeFromUrl = async (audioUrl) => {
 
   fs.writeFileSync(inputPath, Buffer.from(response.data));
 
-  console.log("🎚 Running FFmpeg...");
+  console.log("Running FFmpeg...");
 
   await new Promise((resolve, reject) => {
     ffmpeg(inputPath)
