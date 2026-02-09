@@ -1,5 +1,5 @@
 import { Queue } from "bullmq";
-import { redis } from "../redis/connection.js";
+import { redis } from "../configs/redis.js";
 
 export const normalizationQueue = new Queue("audio-normalization", {
   connection: redis
